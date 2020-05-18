@@ -1,0 +1,14 @@
+---
+packages:
+  - vim
+  - bash-completion
+  - git
+  - gcc
+  - gcc-c++
+  - nodejs
+  - gettext
+  - device-mapper-persistent-data
+  - lvm2
+  - bzip2
+  - python3-pip
+  - docker-ce-3:18.09.1-3.el7

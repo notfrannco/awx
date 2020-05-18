@@ -1,0 +1,59 @@
+---
+- name: Instalador de AWX Centos 8
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Add the Docker repo
+      shell: yum config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "{{ packages }}"
+
+    - name: Configure python to point to python3
+      shell: alternatives --set python /usr/bin/python3
+
+    - name: Start and enable docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker-compose
+      pip:
+        name: docker-compose
+        #executable: pip3
+        
+
+    - name: Clone awx git repo
+      git:
+        repo: https://github.com/ansible/awx.git
+        dest: /root/awx/
+
+    - firewalld:
+        masquerade: yes
+        state: enabled
+        permanent: yes
+        zone: public
+      tags:
+        - firewall
+
+    - firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: enabled
+      loop:
+        - http
+        - https
+      tags:
+        - firewall
+
+    - service:
+        name: firewalld
+        state: reloaded
