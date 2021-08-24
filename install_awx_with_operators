@@ -1,0 +1,52 @@
+# FIRST INSTALL A K8S CLUSTER (CHECK KUBESPHERE INSTALLTION)
+
+
+# documentation
+[1]https://github.com/ansible/awx-operator
+[2]https://github.com/ansible/awx-operator/tags  -> para version de operator a utilizar en la instalacion 
+
+
+
+
+# INstall the AWX Operator:
+# Instalar el AWX operator [2] documentation
+
+kubectl apply -f https://raw.githubusercontent.com/ansible/awx-operator/0.10.0/deploy/awx-operator.yaml
+kubectl get pods
+
+
+# Create the deployment file:
+
+vi awx-demo.yml
+
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX 
+metadata:
+  name: awx-demo
+spec:
+  service_type: nodeport
+  ingress_type: none
+  hostname: awx-demo.example.com
+...
+
+
+# Run the deployment:
+kubectl apply -f awx-demo.yml
+kubectl get pods -l "app.kubernetes.io/managed-by=awx-operator"
+kubectl get svc -l "app.kubernetes.io/managed-by=awx-operator"
+
+# wait for the 4/4 ready
+watch kubectl get pods -l "app.kubernetes.io/managed-by=awx-operator"
+
+
+# get the Admin user password:
+kubectl get secrets
+kubectl get secret awx-demo-admin-password -o jsonpath="{.data.password}" | base64 --decode
+
+
+#Enable AWX to be access via the Internet:
+# check port  awx-name-service
+kubectl get svc 
+kubectl port-forward svc/awx-demo-service --address 0.0.0.0 30886:80
+

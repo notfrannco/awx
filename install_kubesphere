@@ -1,0 +1,19 @@
+# install kubesphere  [doc]https://kubesphere.io/docs/quick-start/all-in-one-on-linux/
+curl -sfL https://get-kk.kubesphere.io | VERSION=v1.1.1 sh -
+
+chmod +x kk
+
+./kk create cluster --with-kubernetes v1.20.4 --with-kubesphere v3.1.1
+
+
+kubectl logs -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-install -o jsonpath='{.items[0].metadata.name}') -f
+
+
+
+
+
+# for normal user use
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
